@@ -1,3 +1,4 @@
 chess
 tensorflow
 stockfish
+pandas

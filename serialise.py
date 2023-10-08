@@ -1,9 +1,8 @@
 import chess
 import chess.pgn
 import numpy as np
-import tensorflow as tf
+import pandas as pd
 
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 """
 If we just see the tensors in our terminal,
@@ -47,11 +46,18 @@ def serialise(board):
             piece = str(piece).strip()
             ser[connect.get(piece)][i//8][i%8] = 1
 
-    ser = tf.constant(ser) # converting numpy array to a tensor
+    ser=np.reshape(ser,(-1))
+    return ser.tolist()
     
 
 gm=0
 pgn = open("./sampledata.pgn")
+col_dic={}
+for i,j in enumerate(connect):
+    for k in range(1, 65):
+        col_dic[j+str(k)]=[]
+
+df=pd.DataFrame(data=col_dic)
 while (True):
     game = chess.pgn.read_game(pgn)
     if game is None:
@@ -60,8 +66,7 @@ while (True):
     for i, move in enumerate(game.mainline_moves()):
         print("processing game %g move %i" % (gm, i))
         board.push(move)
-        # print(board)
-        serialise(board)
+        df.loc[len(df)]=(serialise(board))
     gm=gm+1
-     
 
+df.to_csv("temp.csv", index=False)
