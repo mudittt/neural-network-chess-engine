@@ -40,28 +40,21 @@ connect = {
 }
 
 def serialise(board):
-    ser = np.zeros((12,8,8))
+    # 14 instead of 12
+    ser = np.zeros((14,8,8))
     for i in range(64):
         piece = board.piece_at(i)
         if piece is not None:
             piece = str(piece).strip()
-            ser[connect.get(piece)][i//8][i%8] = 1
+            pieceindex = connect.get(piece)
+            # for individual pieces
+            ser[pieceindex][i//8][i%8] = 1
+            # for all whites
+            if pieceindex>=0 and pieceindex <=5:
+                ser[12][i//8][i%8] = 1
+            # for all blacks
+            elif pieceindex>=6 and pieceindex <=11:
+                ser[13][i//8][i%8] = 1
 
     ser = tf.constant(ser) # converting numpy array to a tensor
-    
-
-gm=0
-pgn = open("./sampledata.pgn")
-while (True):
-    game = chess.pgn.read_game(pgn)
-    if game is None:
-        break
-    board = game.board()
-    for i, move in enumerate(game.mainline_moves()):
-        print("processing game %g move %i" % (gm, i))
-        board.push(move)
-        # print(board)
-        serialise(board)
-    gm=gm+1
-     
-
+    return ser
